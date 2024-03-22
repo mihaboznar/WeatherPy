@@ -33,7 +33,7 @@ class Application(tk.Tk):
             if i == 0:
                 self.create_current_weather_widgets(frame)
             else:
-                for n in range(0, 7):
+                for n in range(0, 8):
                     self.create_daily_weather_widgets(frame, n)
 
         self.quit = tk.Button(self, text="CLOSE", fg="black", command=self.destroy)
@@ -126,12 +126,12 @@ class Application(tk.Tk):
         # The order of variables in hourly or daily is important to assign them correctly below
         url = "https://api.open-meteo.com/v1/forecast"
         parameters = {
-            "latitude": 46.072491,
-            "longitude": 14.50998,
+            "latitude": 49.168680,
+            "longitude": 16.563270,
             "current": ["temperature_2m", "apparent_temperature", "precipitation", "wind_speed_10m", "wind_direction_10m"],
             "daily": ["temperature_2m_max", "temperature_2m_min", "apparent_temperature_max", "apparent_temperature_min"],
             "timezone": "auto",
-            "forecast_days": 7
+            "forecast_days": 8
         }
         responses = openmeteo.weather_api(url, params=parameters)
 
