@@ -31,7 +31,8 @@ class Application(tk.Tk):
             if i == 0:
                 self.create_current_weather_widgets(frame)
             else:
-                self.create_daily_weather_widgets(frame)
+                for i in range(0, 13, 1):
+                    self.create_daily_weather_widgets(frame)
 
 
             #self.labels.append((main_label, current_temp_label, current_apparent_temp_label, current_precipitation_label, current_wind_speed_label, current_wind_direction_label))
@@ -68,12 +69,8 @@ class Application(tk.Tk):
         daily_apparent_max_temp_label.pack()
         daily_apparent_min_temp_label = tk.Label(frame, text="Apparent Min temperature: ")
         daily_apparent_min_temp_label.pack()
-        daily_sunrise_label = tk.Label(frame, text="Sunrise: ")
-        daily_sunrise_label.pack()
-        daily_sunset_label = tk.Label(frame, text="Sunset: ")
-        daily_sunset_label.pack()
         
-        self.daily_labels.append((main_label, daily_max_temp_label, daily_min_temp_label, daily_apparent_max_temp_label, daily_apparent_min_temp_label, daily_sunrise_label, daily_sunset_label))
+        self.daily_labels.append((main_label, daily_max_temp_label, daily_min_temp_label, daily_apparent_max_temp_label, daily_apparent_min_temp_label))
 
     def fetch_weather_data(self):
         
@@ -89,7 +86,7 @@ class Application(tk.Tk):
             "latitude": 46.072491,
             "longitude": 14.50998,
             "current": ["temperature_2m", "apparent_temperature", "precipitation", "wind_speed_10m", "wind_direction_10m"],
-            "daily": ["temperature_2m_max", "temperature_2m_min", "apparent_temperature_max", "apparent_temperature_min", "sunrise", "sunset"],
+            "daily": ["temperature_2m_max", "temperature_2m_min", "apparent_temperature_max", "apparent_temperature_min"],
             "timezone": "auto",
             "forecast_days": 14
         }
@@ -97,10 +94,10 @@ class Application(tk.Tk):
 
         # Process first location. Add a for-loop for multiple locations or weather models
         response = responses[0]
-        print(f"Coordinates {response.Latitude()}°N {response.Longitude()}°E")
-        print(f"Elevation {response.Elevation()} m asl")
-        print(f"Timezone {response.Timezone()} {response.TimezoneAbbreviation()}")
-        print(f"Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s")
+        #print(f"Coordinates {response.Latitude()}°N {response.Longitude()}°E")
+        #print(f"Elevation {response.Elevation()} m asl")
+        #print(f"Timezone {response.Timezone()} {response.TimezoneAbbreviation()}")
+        #print(f"Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s")
 
         # Current values. The order of variables needs to be the same as requested.
         current = response.Current()
@@ -110,12 +107,12 @@ class Application(tk.Tk):
         current_wind_speed_10m = current.Variables(3).Value()
         current_wind_direction_10m = current.Variables(4).Value()
 
-        print(f"Current time {current.Time()}")
-        print(f"Current temperature_2m {current_temperature_2m}")
-        print(f"Current apparent_temperature {current_apparent_temperature}")
-        print(f"Current precipitation {current_precipitation}")
-        print(f"Current wind_speed_10m {current_wind_speed_10m}")
-        print(f"Current wind_direction_10m {current_wind_direction_10m}")
+        #print(f"Current temperature_2m {current_temperature_2m}")
+        #print(f"Current apparent_temperature {current_apparent_temperature}")
+        #print(f"Current time {current.Time()}")
+        #print(f"Current precipitation {current_precipitation}")
+        #print(f"Current wind_speed_10m {current_wind_speed_10m}")
+        #print(f"Current wind_direction_10m {current_wind_direction_10m}")
 
         # Process daily data. The order of variables needs to be the same as requested.
         daily = response.Daily()
@@ -123,8 +120,6 @@ class Application(tk.Tk):
         daily_temperature_2m_min = daily.Variables(1).ValuesAsNumpy()
         daily_apparent_temperature_max = daily.Variables(2).ValuesAsNumpy()
         daily_apparent_temperature_min = daily.Variables(3).ValuesAsNumpy()
-        daily_sunrise = daily.Variables(4).ValuesAsNumpy()
-        daily_sunset = daily.Variables(5).ValuesAsNumpy()
 
         daily_data = {"date": pd.date_range(
             start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
@@ -132,36 +127,18 @@ class Application(tk.Tk):
             freq = pd.Timedelta(seconds = daily.Interval()),
             inclusive = "left"
         )}
+        
         daily_data["temperature_2m_max"] = daily_temperature_2m_max
         daily_data["temperature_2m_min"] = daily_temperature_2m_min
         daily_data["apparent_temperature_max"] = daily_apparent_temperature_max
         daily_data["apparent_temperature_min"] = daily_apparent_temperature_min
-        daily_data["sunrise"] = daily_sunrise
-        daily_data["sunset"] = daily_sunset
                    
         daily_dataframe = pd.DataFrame(data = daily_data)
-        #print(daily_dataframe)
+        print(daily_dataframe)
 
-        self.update_labels(current_temperature_2m, current_apparent_temperature, current_precipitation, current_wind_speed_10m, current_wind_direction_10m)#, daily_temperature_2m_max, daily_temperature_2m_min, daily_apparent_temperature_max, daily_apparent_temperature_min, daily_sunrise, daily_sunset)
+        self.update_labels(current_temperature_2m, current_apparent_temperature, current_precipitation, current_wind_speed_10m, current_wind_direction_10m, daily_temperature_2m_max, daily_temperature_2m_min, daily_apparent_temperature_max, daily_apparent_temperature_min)
             
-    def update_labels(self, current_temperature_2m, current_apparent_temperature, current_precipitation, current_wind_speed_10m, current_wind_direction_10m):#, daily_temperature_2m_max, daily_temperature_2m_min, daily_apparent_temperature_max, daily_apparent_temperature_min, daily_sunrise, daily_sunset):
-        
-        #current_data = (current_temperature_2m, current_apparent_temperature, current_precipitation, current_wind_speed_10m, current_wind_direction_10m)
-        #for labels in self.current_labels:
-        #    labels[1].config(text=f"Temperature: {current_data[0]}°C")
-        #    labels[2].config(text=f"Apparent temperature: {current_data[1]}°C")
-        #    labels[3].config(text=f"Precipitation: {current_data[2]}mm")
-        #    labels[4].config(text=f"Wind Speed: {current_data[3]}m/s")
-        #    labels[5].config(text=f"Wind Direction: {current_data[4]}°")
-
-        #daily_data = (daily_temperature_2m_max[0], daily_temperature_2m_min[0], daily_apparent_temperature_max[0], daily_apparent_temperature_min[0], daily_sunrise[0], daily_sunset[0])
-        #for labels in self.daily_labels:
-        #    labels[1].config(text=f"Max Temperature: {daily_data[0]}°C")
-        #    labels[2].config(text=f"Min Temperature: {daily_data[1]}°C")
-        #    labels[3].config(text=f"Apparent Max temperature: {daily_data[2]}°C")
-        #    labels[4].config(text=f"Apparent Min temperature: {daily_data[3]}°C")
-        #    labels[5].config(text=f"Sunrise: {daily_data[4]}")
-        #    labels[6].config(text=f"Sunset: {daily_data[5]}")
+    def update_labels(self, current_temperature_2m, current_apparent_temperature, current_precipitation, current_wind_speed_10m, current_wind_direction_10m, daily_temperature_2m_max, daily_temperature_2m_min, daily_apparent_temperature_max, daily_apparent_temperature_min):
         
         for labels in self.current_labels:
             labels[1].config(text=f"Temperature: {current_temperature_2m}°C")
@@ -169,15 +146,12 @@ class Application(tk.Tk):
             labels[3].config(text=f"Precipitation: {current_precipitation}mm")
             labels[4].config(text=f"Wind Speed: {current_wind_speed_10m}m/s")
             labels[5].config(text=f"Wind Direction: {current_wind_direction_10m}°")
-        
-        #for labels in self.daily_labels:
-        #    labels[1].config(text=f"Max Temperature: {daily_temperature_2m_max}°C")
-        #    labels[2].config(text=f"Min Temperature: {daily_temperature_2m_min}°C")
-        #    labels[3].config(text=f"Apparent Max temperature: {daily_apparent_temperature_max}°C")
-        #    labels[4].config(text=f"Apparent Min temperature: {daily_apparent_temperature_min}°C")
-        #    labels[5].config(text=f"Sunrise: {daily_sunrise}")
-        #    labels[6].config(text=f"Sunset: {daily_sunset}")
 
+        for i, labels in enumerate(self.daily_labels):
+            labels[1].config(text=f"Max Temperature: {daily_temperature_2m_max[i]}°C")
+            labels[2].config(text=f"Min Temperature: {daily_temperature_2m_min[i]}°C")
+            labels[3].config(text=f"Apparent Max temperature: {daily_apparent_temperature_max[i]}°C")
+            labels[4].config(text=f"Apparent Min temperature: {daily_apparent_temperature_min[i]}°C")
 
 if __name__ == "__main__":
     app = Application()
