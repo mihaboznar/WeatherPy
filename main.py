@@ -4,6 +4,7 @@ import json
 import openmeteo_requests
 import requests_cache
 import pandas as pd
+import numpy as np
 from retry_requests import retry
 
 class Application(tk.Tk):
@@ -31,7 +32,7 @@ class Application(tk.Tk):
             if i == 0:
                 self.create_current_weather_widgets(frame)
             else:
-                for i in range(0, 13, 1):
+                for i in range(0, 7, 1):
                     self.create_daily_weather_widgets(frame)
 
 
@@ -88,7 +89,7 @@ class Application(tk.Tk):
             "current": ["temperature_2m", "apparent_temperature", "precipitation", "wind_speed_10m", "wind_direction_10m"],
             "daily": ["temperature_2m_max", "temperature_2m_min", "apparent_temperature_max", "apparent_temperature_min"],
             "timezone": "auto",
-            "forecast_days": 14
+            "forecast_days": 7
         }
         responses = openmeteo.weather_api(url, params=parameters)
 
@@ -102,10 +103,10 @@ class Application(tk.Tk):
         # Current values. The order of variables needs to be the same as requested.
         current = response.Current()
         current_temperature_2m = current.Variables(0).Value()
-        current_apparent_temperature = current.Variables(1).Value()
+        current_apparent_temperature = round(current.Variables(1).Value(), 2)
         current_precipitation = current.Variables(2).Value()
-        current_wind_speed_10m = current.Variables(3).Value()
-        current_wind_direction_10m = current.Variables(4).Value()
+        current_wind_speed_10m = round(current.Variables(3).Value(), 3)
+        current_wind_direction_10m = round(current.Variables(4).Value(), 3)
 
         #print(f"Current temperature_2m {current_temperature_2m}")
         #print(f"Current apparent_temperature {current_apparent_temperature}")
@@ -116,10 +117,16 @@ class Application(tk.Tk):
 
         # Process daily data. The order of variables needs to be the same as requested.
         daily = response.Daily()
-        daily_temperature_2m_max = daily.Variables(0).ValuesAsNumpy()
-        daily_temperature_2m_min = daily.Variables(1).ValuesAsNumpy()
-        daily_apparent_temperature_max = daily.Variables(2).ValuesAsNumpy()
-        daily_apparent_temperature_min = daily.Variables(3).ValuesAsNumpy()
+        daily_temperature_2m_max_temp = daily.Variables(0).ValuesAsNumpy()
+        daily_temperature_2m_max = [f"{value:.2f}".rstrip('0').rstrip('.') for value in np.round(daily_temperature_2m_max_temp, 2)]
+        daily_temperature_2m_min_temp = daily.Variables(1).ValuesAsNumpy()
+        daily_temperature_2m_min = [f"{value:.2f}".rstrip('0').rstrip('.') for value in np.round(daily_temperature_2m_min_temp, 2)]
+        daily_apparent_temperature_max_temp = daily.Variables(2).ValuesAsNumpy()
+        daily_apparent_temperature_max = [f"{value:.2f}".rstrip('0').rstrip('.') for value in np.round(daily_apparent_temperature_max_temp, 2)]
+        daily_apparent_temperature_min_temp = daily.Variables(3).ValuesAsNumpy()
+        daily_apparent_temperature_min = [f"{value:.2f}".rstrip('0').rstrip('.') for value in np.round(daily_apparent_temperature_min_temp, 2)]
+
+        #daily_temperature_2m_max = np.round(daily_temperature_2m_max, 2)
 
         daily_data = {"date": pd.date_range(
             start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
@@ -128,11 +135,11 @@ class Application(tk.Tk):
             inclusive = "left"
         )}
         
-        daily_data["temperature_2m_max"] = daily_temperature_2m_max
+        daily_data["temperature_max"] = daily_temperature_2m_max
         daily_data["temperature_2m_min"] = daily_temperature_2m_min
         daily_data["apparent_temperature_max"] = daily_apparent_temperature_max
         daily_data["apparent_temperature_min"] = daily_apparent_temperature_min
-                   
+        
         daily_dataframe = pd.DataFrame(data = daily_data)
         print(daily_dataframe)
 
