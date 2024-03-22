@@ -22,56 +22,98 @@ class Application(tk.Tk):
         for i in range(n):
             frame = tk.Frame(self)
             self.frames.append(frame)
-            frame.pack(fill="both", expand=True)
+            #frame.pack(fill="both", expand=True)
+            frame.grid(row=i, column=0, sticky="nsew")  # Use grid geometry manager
+            self.grid_columnconfigure(i, weight=1)  # Make columns expandable
         
         self.create_widgets()
 
     def create_widgets(self):
-        #self.labels = []
         for i, frame in enumerate(self.frames):
             if i == 0:
                 self.create_current_weather_widgets(frame)
             else:
-                for i in range(0, 7, 1):
-                    self.create_daily_weather_widgets(frame)
-
-
-            #self.labels.append((main_label, current_temp_label, current_apparent_temp_label, current_precipitation_label, current_wind_speed_label, current_wind_direction_label))
+                for n in range(0, 7):
+                    self.create_daily_weather_widgets(frame, n)
 
         self.quit = tk.Button(self, text="CLOSE", fg="black", command=self.destroy)
-        self.quit.pack(side="bottom", pady=10, padx=10, anchor="se")
+        #self.quit.pack(side="bottom", pady=10, padx=10, anchor="se")
+        self.quit.grid(row=0, column=0, columnspan=2, pady=10, padx=10, sticky="ne")
 
     def create_current_weather_widgets(self, frame):
         main_label = tk.Label(frame, text=f"Current Weather")
-        main_label.pack(pady=10)
+        #main_label.pack(pady=10)
+        main_label.grid(row=0, column=0, sticky="w", padx=10, pady=10)
 
+        #current_temp_label = tk.Label(frame, text="Temperature: ")
+        #current_temp_label.pack()
+        #current_apparent_temp_label = tk.Label(frame, text="Apparent temperature: ")
+        #current_apparent_temp_label.pack()
+        #current_precipitation_label = tk.Label(frame, text="Precipitation: ")
+        #current_precipitation_label.pack()
+        #current_wind_speed_label = tk.Label(frame, text="Wind Speed: ")
+        #current_wind_speed_label.pack()
+        #current_wind_direction_label = tk.Label(frame, text="Wind Direction: ")
+        #current_wind_direction_label.pack()
+        
         current_temp_label = tk.Label(frame, text="Temperature: ")
-        current_temp_label.pack()
+        current_temp_label.grid(row=1, column=0, sticky="w", padx=10)
         current_apparent_temp_label = tk.Label(frame, text="Apparent temperature: ")
-        current_apparent_temp_label.pack()
+        current_apparent_temp_label.grid(row=2, column=0, sticky="w", padx=10)
         current_precipitation_label = tk.Label(frame, text="Precipitation: ")
-        current_precipitation_label.pack()
+        current_precipitation_label.grid(row=3, column=0, sticky="w", padx=10)
         current_wind_speed_label = tk.Label(frame, text="Wind Speed: ")
-        current_wind_speed_label.pack()
+        current_wind_speed_label.grid(row=4, column=0, sticky="w", padx=10)
         current_wind_direction_label = tk.Label(frame, text="Wind Direction: ")
-        current_wind_direction_label.pack()
+        current_wind_direction_label.grid(row=5, column=0, sticky="w", padx=10)
         
         self.current_labels.append((main_label, current_temp_label, current_apparent_temp_label, current_precipitation_label, current_wind_speed_label, current_wind_direction_label))
         
-    def create_daily_weather_widgets(self, frame):
-        main_label = tk.Label(frame, text=f"Daily Weather")
-        main_label.pack(pady=10)
-
-        daily_max_temp_label = tk.Label(frame, text="Max Temperature: ")
-        daily_max_temp_label.pack()
-        daily_min_temp_label = tk.Label(frame, text="Min Temperature: ")
-        daily_min_temp_label.pack()
-        daily_apparent_max_temp_label = tk.Label(frame, text="Apparent Max temperature: ")
-        daily_apparent_max_temp_label.pack()
-        daily_apparent_min_temp_label = tk.Label(frame, text="Apparent Min temperature: ")
-        daily_apparent_min_temp_label.pack()
+    def create_daily_weather_widgets(self, frame, n):
+            if n <= 3:
+                main_label = tk.Label(frame, text=f"Daily Weather")
+                main_label.grid(row=0, column=n, sticky="w", padx=10, pady=15)
+                
+                daily_max_temp_label = tk.Label(frame, text="Max Temperature: ")
+                daily_max_temp_label.grid(row=1, column=n, sticky="w", padx=10)
+                daily_min_temp_label = tk.Label(frame, text="Min Temperature: ")
+                daily_min_temp_label.grid(row=2, column=n, sticky="w", padx=10)
+                daily_apparent_max_temp_label = tk.Label(frame, text="Apparent Max temperature: ")
+                daily_apparent_max_temp_label.grid(row=3, column=n, sticky="w", padx=10)
+                daily_apparent_min_temp_label = tk.Label(frame, text="Apparent Min temperature: ")
+                daily_apparent_min_temp_label.grid(row=4, column=n, sticky="w", padx=10)
+            else:
+                main_label = tk.Label(frame, text=f"Daily Weather")
+                main_label.grid(row=6, column=n-4, sticky="w", padx=10, pady=15)
+                
+                daily_max_temp_label = tk.Label(frame, text="Max Temperature: ")
+                daily_max_temp_label.grid(row=7, column=n-4, sticky="w", padx=10)
+                daily_min_temp_label = tk.Label(frame, text="Min Temperature: ")
+                daily_min_temp_label.grid(row=8, column=n-4, sticky="w", padx=10)
+                daily_apparent_max_temp_label = tk.Label(frame, text="Apparent Max temperature: ")
+                daily_apparent_max_temp_label.grid(row=9, column=n-4, sticky="w", padx=10)
+                daily_apparent_min_temp_label = tk.Label(frame, text="Apparent Min temperature: ")
+                daily_apparent_min_temp_label.grid(row=10, column=n-4, sticky="w", padx=10)
+                
+        #daily_max_temp_label = tk.Label(frame, text="Max Temperature: ")
+        #daily_max_temp_label.pack()
+        #daily_min_temp_label = tk.Label(frame, text="Min Temperature: ")
+        #daily_min_temp_label.pack()
+        #daily_apparent_max_temp_label = tk.Label(frame, text="Apparent Max temperature: ")
+        #daily_apparent_max_temp_label.pack()
+        #daily_apparent_min_temp_label = tk.Label(frame, text="Apparent Min temperature: ")
+        #daily_apparent_min_temp_label.pack()
         
-        self.daily_labels.append((main_label, daily_max_temp_label, daily_min_temp_label, daily_apparent_max_temp_label, daily_apparent_min_temp_label))
+        #daily_max_temp_label = tk.Label(frame, text="Max Temperature: ")
+        #daily_max_temp_label.grid(row=1, column=0, sticky="w")
+        #daily_min_temp_label = tk.Label(frame, text="Min Temperature: ")
+        #daily_min_temp_label.grid(row=2, column=0, sticky="w")
+        #daily_apparent_max_temp_label = tk.Label(frame, text="Apparent Max temperature: ")
+        #daily_apparent_max_temp_label.grid(row=3, column=0, sticky="w")
+        #daily_apparent_min_temp_label = tk.Label(frame, text="Apparent Min temperature: ")
+        #daily_apparent_min_temp_label.grid(row=4, column=0, sticky="w")
+        
+            self.daily_labels.append((main_label, daily_max_temp_label, daily_min_temp_label, daily_apparent_max_temp_label, daily_apparent_min_temp_label))
 
     def fetch_weather_data(self):
         
